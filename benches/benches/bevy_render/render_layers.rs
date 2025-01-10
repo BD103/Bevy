@@ -1,14 +1,22 @@
 use core::hint::black_box;
 
+use benches::bench;
+use bevy_render::view::RenderLayers;
 use criterion::{criterion_group, Criterion};
 
-use bevy_render::view::RenderLayers;
-
 fn render_layers(c: &mut Criterion) {
-    c.bench_function("layers_intersect", |b| {
-        let layer_a = RenderLayers::layer(1).with(2);
-        let layer_b = RenderLayers::layer(1);
-        b.iter(|| black_box(layer_a.intersects(&layer_b)));
+    c.bench_function(bench!("intersects"), |b| {
+        let layer_a = black_box(RenderLayers::layer(1).with(2));
+        let layer_b = black_box(RenderLayers::layer(1));
+
+        b.iter(|| {
+            let intersects = layer_a.intersects(&layer_b);
+
+            #[cfg(test)]
+            assert!(intersects);
+
+            intersects
+        });
     });
 }
 
